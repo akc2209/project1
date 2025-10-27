@@ -118,6 +118,8 @@ def read_pollution():
     for row in rows[start_idx:]:
         if len(row) < 4:
             continue
+
+        # Extract and clean each field
         uhf_id = _to_int_safe(row[0])
         uhf_name = str(row[1]).strip()
         date_str = str(row[2]).strip()
@@ -126,8 +128,10 @@ def read_pollution():
         # Validate all fields before adding
         if uhf_id is None or not uhf_name or not date_str or value is None:
             continue
-
+        # Create measurement tuple
         m: Measurement = (date_str, uhf_id, uhf_name, value)
+
+        # Store in both lookup dictionaries
         by_uhf.setdefault(uhf_id, []).append(m)
         by_date.setdefault(date_str, []).append(m)
 
@@ -263,7 +267,7 @@ def read_uhf():
 # ---------- Query Helpers (Part 1c) ----------
 
 def _format_measurement(m: Measurement) -> str:
-    """Format one measurement tuple into a readable string for printing."""
+    """Convert one measurement tuple into a human-readable string for printing."""
     d, uhf_id, uhf_name, val = m
     return f"{d} UHF {uhf_id} {uhf_name} {val:.2f} mcg/m^3"
 
@@ -325,7 +329,8 @@ def main():
         "  4) date\n"
         "  q) quit\n"
     )
-
+    
+    # Keep prompting user until they quit
     while True:
         print(menu)
         choice = input("Enter choice: ").strip().lower()
@@ -333,7 +338,7 @@ def main():
             print("Goodbye.")
             return
 
-        # Each option uses the search functions we defined earlier
+        # Each option uses the search functions defined earlier
         if choice in ("1", "zip"):
             term = input("Enter 5-digit zip: ").strip()
             results = search_by_zip(term, zip_to_uhfs, by_uhf)
